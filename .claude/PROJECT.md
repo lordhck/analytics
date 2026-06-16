@@ -20,9 +20,14 @@ anywhere is the admin's own first-party session.
 ```
 analytics/
 ├── main.go              entrypoint, config, embed, helpers (rand, hmac)
-├── store.go             SQLite: schema, settings/auth, sites, events, stats
 ├── web.go               routes, auth middleware, handlers, tracking collector
+├── internal/
+│   └── store/
+│       ├── store.go     SQLite: schema, settings/auth, sites, events, stats
+│       └── store_test.go unit tests (schema, auth, cascade, tz stats)
 ├── go.mod               deps: modernc sqlite + x/crypto
+├── go.sum
+├── Makefile             build / run / down / clean / test (all via Docker)
 ├── assets/
 │   └── tracker.js       tracking snippet, served at /t.js
 ├── templates/
@@ -31,15 +36,16 @@ analytics/
 │   ├── dash.html 		 site list + create
 │   └── site.html        per-site stats + snippet
 ├── Dockerfile           3-stage, CGO-free; final image is just the binary
-├── docker-compose.yml   TZ / APP_NAME / SITE_DOMAIN inline
+├── compose.yaml         TZ / APP_NAME / SITE_DOMAIN inline
 ├── README.md
 └── data/                created at runtime (gitignored)
     └── analytics.db     sites, events, password hash, session secret
 ```
 
-Single flat package — appropriate for this size. Templates and `tracker.js` are
-compiled into the binary with `//go:embed`, so there are no runtime file
-dependencies beyond the SQLite database.
+`main`/`web` form the thin HTTP layer; persistence and stats live in the
+`internal/store` package so they can be unit-tested in isolation. Templates and
+`tracker.js` are compiled into the binary with `//go:embed`, so there are no
+runtime file dependencies beyond the SQLite database.
 
 ## Features
 
