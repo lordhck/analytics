@@ -29,7 +29,7 @@ analytics/
 ├── go.sum
 ├── Makefile             build / run / down / clean / test (all via Docker)
 ├── assets/
-│   └── tracker.js       tracking snippet, served at /t.js
+│   └── tracker.js       tracking snippet, served at /atag.js
 ├── templates/
 │   ├── auth.html
 │   ├── reset.html   	 forced change-password page
@@ -98,7 +98,7 @@ are pageviews, which keeps the system cookie-free and identity-free.
 | POST   | `/sites`              | yes  | Create site                   |
 | GET    | `/site/{id}`          | yes  | Per-site stats + snippet      |
 | POST   | `/sites/{id}/delete`  | yes  | Delete site + events          |
-| GET    | `/t.js`               | no   | Tracking snippet              |
+| GET    | `/atag.js`            | no   | Tracking snippet              |
 | POST   | `/api/event`          | no   | Collector (CORS open)         |
 | OPTIONS| `/api/event`          | no   | CORS preflight                |
 

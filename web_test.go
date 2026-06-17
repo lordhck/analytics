@@ -170,9 +170,9 @@ func TestCollectorStoresEvent(t *testing.T) {
 func TestTrackerServed(t *testing.T) {
 	app := newTestApp(t)
 	srv, client := testServer(t, app)
-	resp := get(t, client, srv.URL+"/t.js")
+	resp := get(t, client, srv.URL+"/atag.js")
 	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("/t.js = %d; want 200", resp.StatusCode)
+		t.Fatalf("/atag.js = %d; want 200", resp.StatusCode)
 	}
 	if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/javascript") {
 		t.Fatalf("Content-Type = %q; want application/javascript", ct)

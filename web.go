@@ -36,7 +36,7 @@ type siteView struct {
 func (a *App) routes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /t.js", a.handleTracker)
+	mux.HandleFunc("GET /atag.js", a.handleTracker)
 	mux.HandleFunc("POST /api/event", a.handleEvent)
 	mux.HandleFunc("OPTIONS /api/event", a.handleEventPreflight)
 
@@ -182,7 +182,7 @@ func (a *App) handleSite(w http.ResponseWriter, r *http.Request) {
 	days, _ := a.store.DailyBreakdown(site.ID, now, a.cfg.Loc)
 	pages, _ := a.store.TopPages(site.ID, now, a.cfg.Loc, 10)
 	refs, _ := a.store.TopReferrers(site.ID, now, a.cfg.Loc, 10)
-	snippet := fmt.Sprintf(`<script defer src="%s/t.js" data-site="%s"></script>`, a.cfg.SiteDomain, site.ID)
+	snippet := fmt.Sprintf(`<script defer src="%s/atag.js" data-site="%s"></script>`, a.cfg.SiteDomain, site.ID)
 	a.render(w, "site.html", siteView{
 		AppName: a.cfg.AppName,
 		Site:    site,
