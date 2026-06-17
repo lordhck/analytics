@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.AppName}}</title>
+<h1>{{.AppName}}</h1>
+<form method="post" action="/logout"><button type="submit">Log out</button></form>
+<h2>Sites</h2>
+<ul>
+{{range .Sites}}
+  <li><a href="/site/{{.ID}}">{{.Domain}}</a></li>
+{{else}}
+  <li>No sites yet.</li>
+{{end}}
+</ul>
+<form method="post" action="/sites">
+  <input name="domain" placeholder="example.com">
+  <button type="submit">Add site</button>
+</form>
+</html>

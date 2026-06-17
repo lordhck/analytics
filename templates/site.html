@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.AppName}} — {{.Site.Domain}}</title>
+<p><a href="/dash">&larr; Dashboard</a></p>
+<h1>{{.Site.Domain}}</h1>
+<p>Today: {{.Today}} &middot; Last 7 days: {{.Week}}</p>
+<h2>Per day</h2>
+<ul>{{range .Days}}<li>{{.Day}}: {{.Count}}</li>{{end}}</ul>
+<h2>Top pages</h2>
+<ul>{{range .Pages}}<li>{{.Path}} — {{.Count}}</li>{{else}}<li>No data.</li>{{end}}</ul>
+<h2>Top referrers</h2>
+<ul>{{range .Refs}}<li>{{.Referrer}} — {{.Count}}</li>{{else}}<li>No data.</li>{{end}}</ul>
+<h2>Snippet</h2>
+<pre>{{.Snippet}}</pre>
+<form method="post" action="/sites/{{.Site.ID}}/delete">
+  <button type="submit">Delete site</button>
+</form>
+</html>

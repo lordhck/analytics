@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.AppName}} — Set password</title>
+<h1>Set a new password</h1>
+{{if .Error}}<p>{{.Error}}</p>{{end}}
+<form method="post" action="/reset">
+  <input type="password" name="password" placeholder="New password" autofocus>
+  <button type="submit">Save</button>
+</form>
+</html>
