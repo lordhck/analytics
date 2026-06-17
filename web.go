@@ -217,6 +217,7 @@ func (a *App) handleEventPreflight(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleEvent(w http.ResponseWriter, r *http.Request) {
 	setCORS(w)
+	r.Body = http.MaxBytesReader(w, r.Body, 4096)
 	var in struct {
 		Site     string `json:"site"`
 		Path     string `json:"path"`

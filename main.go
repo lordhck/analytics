@@ -60,8 +60,16 @@ func main() {
 		tmpl:   template.Must(template.ParseFS(templatesFS, "templates/*.html")),
 	}
 
+	srv := &http.Server{
+		Addr:              ":" + cfg.Port,
+		Handler:           app.routes(),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 	log.Printf("analytics %s listening on :%s (%s)", version, cfg.Port, cfg.Loc)
-	if err := http.ListenAndServe(":"+cfg.Port, app.routes()); err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
