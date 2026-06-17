@@ -1,0 +1,8 @@
+.git
+.gitignore
+.claude
+data
+Makefile
+compose.yaml
+*.md
+

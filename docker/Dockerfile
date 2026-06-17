@@ -10,7 +10,7 @@ RUN apk add --no-cache tzdata ca-certificates su-exec \
 	&& adduser -D -u 10001 xyz
 WORKDIR /app
 COPY --from=build /analytics /app/analytics
-COPY entrypoint.sh /entrypoint.sh
+COPY docker/entrypoint.sh /entrypoint.sh
 RUN mkdir -p /app/data && chown -R xyz:xyz /app && chmod +x /entrypoint.sh
 EXPOSE 8080
 VOLUME ["/app/data"]
