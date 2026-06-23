@@ -126,13 +126,8 @@ Also read from the environment if set: `PORT` (default `8080`), `DB_PATH`
 ## Build & run
 
 ```bash
-# Docker
-$EDITOR docker-compose.yml      # set the three values
-docker compose up -d --build
-
-# Local
-cd server && go mod tidy
-TZ=Europe/Stockholm go run .    # http://localhost:8080
+$EDITOR compose.yaml      # set the three values
+make run
 ```
 
 First login uses password `admin`; you must set a new one before continuing.
