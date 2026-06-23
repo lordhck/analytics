@@ -1,17 +1,27 @@
-.PHONY: build run down clean test
+.PHONY: help build run down clean test
+.DEFAULT_GOAL := help
 
-build:
-	docker compose build
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-8s\033[0m %s\n", $$1, $$2}'
 
-test:
-	docker run --rm -v "$(PWD)/server":/src -w /src golang:1.25-alpine sh -c "go mod tidy && go test ./..."
+build: ## Build the docker image
+	@echo "[i] Docker image build started ..."
+	@docker compose build
 
-run:
-	docker compose up -d --build
+test: ## Run the go test suite in a throwaway container
+	@echo "[i] Running tests ..."
+	@docker run --rm -v "$(PWD)/server":/src -w /src golang:1.25-alpine sh -c "go mod tidy && go test ./..."
 
-down:
-	docker compose down
+run: ## Build and start the stack (detached)
+	@echo "[i] Starting stack ..."
+	@docker compose up -d --build
 
-clean:
-	docker compose down -v --rmi local --remove-orphans
-	rm -rf data
+down: ## Stop the stack
+	@echo "[i] Stopping stack ..."
+	@docker compose down
+
+clean: ## Stop the stack, remove volumes/images and data
+	@echo "[i] Cleaning up volumes, images, data ..."
+	@docker compose down -v --rmi local --remove-orphans
+	@rm -rf data
