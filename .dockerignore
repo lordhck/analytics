@@ -2,6 +2,7 @@
 .gitignore
 .claude
 data
+webui
 Makefile
 compose.yaml
 *.md

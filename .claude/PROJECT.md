@@ -19,23 +19,28 @@ anywhere is the admin's own first-party session.
 
 ```
 analytics/
-├── main.go              entrypoint, config, embed, helpers (rand, hmac)
-├── web.go               routes, auth middleware, handlers, tracking collector
-├── internal/
-│   └── store/
-│       ├── store.go     SQLite: schema, settings/auth, sites, events, stats
-│       └── store_test.go unit tests (schema, auth, cascade, tz stats)
-├── go.mod               deps: modernc sqlite + x/crypto
-├── go.sum
+├── server/              Go application (module root)
+│   ├── main.go          entrypoint, config, embed, helpers (rand, hmac)
+│   ├── web.go           routes, auth middleware, handlers, tracking collector
+│   ├── internal/
+│   │   └── store/
+│   │       ├── store.go      SQLite: schema, settings/auth, sites, events, stats
+│   │       └── store_test.go unit tests (schema, auth, cascade, tz stats)
+│   ├── go.mod           deps: modernc sqlite + x/crypto
+│   ├── go.sum
+│   ├── assets/
+│   │   └── tracker.js   tracking snippet, served at /atag.js
+│   └── templates/
+│       ├── auth.html
+│       ├── reset.html   forced change-password page
+│       ├── dash.html    site list + create
+│       └── site.html    per-site stats + snippet
+├── webui/               frontend SPA (v0.1.1, in progress)
+│   └── Dockerfile       Ubuntu + bun dev box, non-root
+├── docker/
+│   ├── Dockerfile       3-stage, CGO-free; final image is just the binary
+│   └── entrypoint.sh    chowns the data volume, drops to non-root
 ├── Makefile             build / run / down / clean / test (all via Docker)
-├── assets/
-│   └── tracker.js       tracking snippet, served at /atag.js
-├── templates/
-│   ├── auth.html
-│   ├── reset.html   	 forced change-password page
-│   ├── dash.html 		 site list + create
-│   └── site.html        per-site stats + snippet
-├── Dockerfile           3-stage, CGO-free; final image is just the binary
 ├── compose.yaml         TZ / APP_NAME / SITE_DOMAIN inline
 ├── README.md
 └── data/                created at runtime (gitignored)
@@ -126,7 +131,7 @@ $EDITOR docker-compose.yml      # set the three values
 docker compose up -d --build
 
 # Local
-go mod tidy
+cd server && go mod tidy
 TZ=Europe/Stockholm go run .    # http://localhost:8080
 ```
 

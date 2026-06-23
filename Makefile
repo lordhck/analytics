@@ -4,7 +4,7 @@ build:
 	docker compose build
 
 test:
-	docker run --rm -v "$(PWD)":/src -w /src golang:1.25-alpine sh -c "go mod tidy && go test ./..."
+	docker run --rm -v "$(PWD)/server":/src -w /src golang:1.25-alpine sh -c "go mod tidy && go test ./..."
 
 run:
 	docker compose up -d --build

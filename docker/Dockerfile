@@ -1,7 +1,7 @@
 FROM golang:1.25-alpine AS build
 ARG VERSION=0.1
 WORKDIR /src
-COPY . .
+COPY server/ .
 RUN go mod tidy && CGO_ENABLED=0 go build -trimpath \
 	-ldflags="-s -w -X main.version=${VERSION}" -o /analytics .
 

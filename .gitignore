@@ -1,2 +1,4 @@
 data/
-/analytics
+/server/analytics
+webui/node_modules/
+webui/dist/
