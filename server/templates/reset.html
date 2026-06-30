@@ -7,6 +7,7 @@
 {{if .Error}}<p>{{.Error}}</p>{{end}}
 <form method="post" action="/reset">
   <input type="password" name="password" placeholder="New password" autofocus>
+  <input type="password" name="confirm" placeholder="Confirm password">
   <button type="submit">Save</button>
 </form>
 </html>

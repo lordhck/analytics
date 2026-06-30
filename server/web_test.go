@@ -112,17 +112,31 @@ func TestSessionRoundTrip(t *testing.T) {
 func TestLoginResetFlow(t *testing.T) {
 	app := newTestApp(t)
 	srv, client := testServer(t, app)
+	temp := app.store.TempPassword
 
 	assertRedirect(t, get(t, client, srv.URL+"/dash"), "/auth")
 
-	resp := postForm(t, client, srv.URL+"/auth", url.Values{"password": {"nope"}})
+	resp := postForm(t, client, srv.URL+"/auth", url.Values{"username": {"admin"}, "password": {"nope"}})
 	if resp.StatusCode != http.StatusUnauthorized {
-		t.Fatalf("wrong login = %d; want 401", resp.StatusCode)
+		t.Fatalf("wrong password = %d; want 401", resp.StatusCode)
+	}
+	if resp := postForm(t, client, srv.URL+"/auth", url.Values{"username": {"root"}, "password": {temp}}); resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("wrong username = %d; want 401", resp.StatusCode)
 	}
 
-	assertRedirect(t, postForm(t, client, srv.URL+"/auth", url.Values{"password": {"admin"}}), "/reset")
+	assertRedirect(t, postForm(t, client, srv.URL+"/auth", url.Values{"username": {"admin"}, "password": {temp}}), "/reset")
+
+	// The temporary password is one-time: a fresh client cannot reuse it.
+	_, other := testServer(t, app)
+	if resp := postForm(t, other, srv.URL+"/auth", url.Values{"username": {"admin"}, "password": {temp}}); resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("reused temp login = %d; want 401", resp.StatusCode)
+	}
+
 	assertRedirect(t, get(t, client, srv.URL+"/dash"), "/reset")
-	assertRedirect(t, postForm(t, client, srv.URL+"/reset", url.Values{"password": {"hunter2"}}), "/dash")
+	if resp := postForm(t, client, srv.URL+"/reset", url.Values{"password": {"hunter2"}, "confirm": {"nope"}}); resp.StatusCode != http.StatusOK {
+		t.Fatalf("mismatched confirm = %d; want 200 (re-render)", resp.StatusCode)
+	}
+	assertRedirect(t, postForm(t, client, srv.URL+"/reset", url.Values{"password": {"hunter2"}, "confirm": {"hunter2"}}), "/dash")
 
 	if resp := get(t, client, srv.URL+"/dash"); resp.StatusCode != http.StatusOK {
 		t.Fatalf("dash after reset = %d; want 200", resp.StatusCode)

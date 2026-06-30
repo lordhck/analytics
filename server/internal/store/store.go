@@ -14,6 +14,11 @@ import (
 
 type Store struct {
 	db *sql.DB
+
+	// TempPassword holds the one-time admin password generated on first init,
+	// kept only in memory so the operator can read it from the startup logs;
+	// it is never persisted in clear and is empty once a real password exists.
+	TempPassword string
 }
 
 type Site struct {
@@ -90,12 +95,17 @@ func (s *Store) seed() error {
 		return err
 	}
 	if !has {
-		if err := s.SetPassword("admin"); err != nil {
+		otp, err := randomToken(16)
+		if err != nil {
+			return err
+		}
+		if err := s.SetPassword(otp); err != nil {
 			return err
 		}
 		if err := s.SetMustChange(true); err != nil {
 			return err
 		}
+		s.TempPassword = otp
 	}
 	return nil
 }
@@ -129,6 +139,9 @@ func (s *Store) SetPassword(pw string) error {
 func (s *Store) CheckPassword(pw string) (bool, error) {
 	hash, err := s.getSetting("password_hash")
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
 		return false, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
@@ -139,6 +152,15 @@ func (s *Store) CheckPassword(pw string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+// ConsumeTempPassword removes the stored password so the generated one-time
+// password can authenticate only once. The caller already holds a session and
+// is forced to set a real password; if that is abandoned, a restart re-seeds a
+// fresh temporary password rather than locking the instance out.
+func (s *Store) ConsumeTempPassword() error {
+	_, err := s.db.Exec(`DELETE FROM settings WHERE key = ?`, "password_hash")
+	return err
 }
 
 func (s *Store) MustChange() (bool, error) {

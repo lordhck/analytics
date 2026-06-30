@@ -48,6 +48,10 @@ func main() {
 	}
 	defer st.Close()
 
+	if st.TempPassword != "" {
+		log.Printf("Temporary password: %s", st.TempPassword)
+	}
+
 	secret, err := st.SessionSecret()
 	if err != nil {
 		log.Fatalf("session secret: %v", err)

@@ -31,8 +31,11 @@ func TestSeedAndAuth(t *testing.T) {
 	if err != nil || !must {
 		t.Fatalf("MustChange after seed = %v, %v; want true", must, err)
 	}
-	if ok, err := s.CheckPassword("admin"); err != nil || !ok {
-		t.Fatalf("CheckPassword(admin) = %v, %v; want true", ok, err)
+	if len(s.TempPassword) != 32 {
+		t.Fatalf("TempPassword len = %d; want 32", len(s.TempPassword))
+	}
+	if ok, err := s.CheckPassword(s.TempPassword); err != nil || !ok {
+		t.Fatalf("CheckPassword(temp) = %v, %v; want true", ok, err)
 	}
 	if ok, err := s.CheckPassword("wrong"); err != nil || ok {
 		t.Fatalf("CheckPassword(wrong) = %v, %v; want false", ok, err)
@@ -49,6 +52,19 @@ func TestSeedAndAuth(t *testing.T) {
 	}
 	if ok, _ := s.CheckPassword("s3cret"); !ok {
 		t.Fatalf("CheckPassword(s3cret) = false; want true")
+	}
+}
+
+func TestConsumeTempPassword(t *testing.T) {
+	s := newTestStore(t)
+	if ok, _ := s.CheckPassword(s.TempPassword); !ok {
+		t.Fatal("temp password should authenticate before consume")
+	}
+	if err := s.ConsumeTempPassword(); err != nil {
+		t.Fatalf("ConsumeTempPassword: %v", err)
+	}
+	if ok, err := s.CheckPassword(s.TempPassword); err != nil || ok {
+		t.Fatalf("CheckPassword after consume = %v, %v; want false, nil", ok, err)
 	}
 }
 

@@ -12,6 +12,8 @@ import (
 	"analytics/internal/store"
 )
 
+const adminUser = "admin"
+
 type authView struct {
 	AppName string
 	Error   string
@@ -118,13 +120,20 @@ func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if !ok {
+	if r.FormValue("username") != adminUser || !ok {
 		w.WriteHeader(http.StatusUnauthorized)
-		a.render(w, "auth.html", authView{AppName: a.cfg.AppName, Error: "Wrong password."})
+		a.render(w, "auth.html", authView{AppName: a.cfg.AppName, Error: "Wrong username or password."})
 		return
 	}
+	must, _ := a.store.MustChange()
+	if must {
+		if err := a.store.ConsumeTempPassword(); err != nil {
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+	}
 	a.setSession(w)
-	if must, _ := a.store.MustChange(); must {
+	if must {
 		http.Redirect(w, r, "/reset", http.StatusSeeOther)
 		return
 	}
@@ -144,6 +153,10 @@ func (a *App) handleReset(w http.ResponseWriter, r *http.Request) {
 	pw := r.FormValue("password")
 	if pw == "" {
 		a.render(w, "reset.html", authView{AppName: a.cfg.AppName, Error: "Password required."})
+		return
+	}
+	if r.FormValue("confirm") != pw {
+		a.render(w, "reset.html", authView{AppName: a.cfg.AppName, Error: "Passwords do not match."})
 		return
 	}
 	if err := a.store.SetPassword(pw); err != nil {
