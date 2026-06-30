@@ -22,6 +22,7 @@ down: ## Stop the stack
 	@docker compose down
 
 clean: ## Stop the stack, remove volumes/images and data
-	@echo "[i] Cleaning up volumes, images, data ..."
-	@docker compose down -v --rmi local --remove-orphans
+	@echo "[i] Cleaning up volumes, image, data ..."
+	@docker compose down -v --remove-orphans
+	@docker rmi analytics:latest 2>/dev/null || true
 	@rm -rf data

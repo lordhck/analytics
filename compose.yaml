@@ -1,5 +1,6 @@
 services:
   analytics:
+    image: analytics:latest
     build:
       context: .
       dockerfile: docker/Dockerfile
